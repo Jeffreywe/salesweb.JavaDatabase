@@ -10,17 +10,59 @@ import org.springframework.web.bind.annotation.*;
 public class OrdersController {
 
 	@Autowired
-	private OrdersRepository custRepo;
+	private OrdersRepository ordRepo;
+	
+	// custom methods
+	
+	@SuppressWarnings("rawtypes")//responseentity gets a generic list, if we dont put anything in angle brackets, we need to use this annotation
+	@PutMapping("review/{id}")//
+	public ResponseEntity reviewOrder(@PathVariable int id, @RequestBody Orders order) {
+		var statusValue = (order.getTotal() <= 50) ? "APPROVED" : "REVIEW";
+		order.setStatus(statusValue);
+		return putOrder(id, order);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@PutMapping("approved/{id}")
+	public ResponseEntity approvedOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("APPROVED");
+		return putOrder(id, order);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@PutMapping("rejected/{id}")
+	public ResponseEntity rejectedOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("REJECTED");
+		return putOrder(id, order);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@PutMapping("reval/{id}")
+	public ResponseEntity reevaluateOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("REEVALUATE");
+		return putOrder(id, order);
+	}
+	
+	@GetMapping("reviews")
+	public ResponseEntity<Iterable<Orders>> getOrdersInReview() {
+		var orders = ordRepo.findByStatus("REVIEW");
+		return new ResponseEntity<Iterable<Orders>>(orders, HttpStatus.OK);
+	}
+	
+	
+	
+	
+	// basic 5 methods
 	
 	@GetMapping
-	public ResponseEntity<Iterable<Orders>> getOrder() {
-		var orders = custRepo.findAll();
+	public ResponseEntity<Iterable<Orders>> getOrders() {
+		var orders = ordRepo.findAll();
 		return new ResponseEntity<Iterable<Orders>>(orders, HttpStatus.OK);
 	}
 	
 	@GetMapping("{id}")
 	public ResponseEntity<Orders> getOrder(@PathVariable int id) {
-		var orderd = custRepo.findById(id);
+		var orderd = ordRepo.findById(id);
 		if(orderd.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -28,11 +70,12 @@ public class OrdersController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Orders> postOrder(@RequestBody Orders orders) {
-		if(orders == null || orders.getId() != 0) {
+	public ResponseEntity<Orders> postOrder(@RequestBody Orders order) {
+		if(order == null || order.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		var ord = custRepo.save(orders);
+		order.setStatus("NEW");
+		var ord = ordRepo.save(order);
 		return new ResponseEntity<Orders>(ord, HttpStatus.CREATED);
 	}
 	
@@ -42,22 +85,22 @@ public class OrdersController {
 		if(orders == null || orders.getId() == 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		var ord = custRepo.findById(orders.getId());
+		var ord = ordRepo.findById(orders.getId());
 		if(ord.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		custRepo.save(orders);
+		ordRepo.save(orders);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	@SuppressWarnings("rawtypes")
 	@DeleteMapping("{id}")
 	public ResponseEntity deleteOrder(@PathVariable int id) {
-		var ord = custRepo.findById(id);
+		var ord = ordRepo.findById(id);
 		if(ord.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		custRepo.delete(ord.get());
+		ordRepo.delete(ord.get());
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

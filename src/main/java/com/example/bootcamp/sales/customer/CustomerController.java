@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.bootcamp.sales.orders.Orders;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/customers")
@@ -12,6 +14,28 @@ public class CustomerController {
 
 	@Autowired
 	private CustomerRepository custRepo;
+	
+	// custom methods
+	
+	@GetMapping("code/{code}")
+	public ResponseEntity<Customer> getCustomerByCode(@PathVariable String code) {
+		var cust = custRepo.findByCode(code);
+		if(cust.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Customer>(cust.get(), HttpStatus.OK);
+	}
+	
+	/*@GetMapping("{userName}/{password}")
+	public ResponseEntity<Customer> getCustomerByLogin(@PathVariable String userName, String passWord) {
+		var cust = custRepo.findByLogin(userName, passWord);
+		if(cust.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Customer>(cust.get(), HttpStatus.OK);
+	}*/
+	
+	// basic 5 methods
 	
 	@GetMapping
 	public ResponseEntity<Iterable<Customer>> getCustomers() {

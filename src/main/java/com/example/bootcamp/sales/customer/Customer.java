@@ -15,7 +15,13 @@ public class Customer {
 	@Column(columnDefinition="decimal(9,2) NOT NULL DEFAULT 0.0")
 	private double sales;
 	private boolean active;
+	@Column(length=30, nullable=false)
+	private String userName;
+	@Column(length=30, nullable=false)
+	private String passWord;
 	
+	
+
 	public Customer() {
 		
 	}
@@ -49,5 +55,21 @@ public class Customer {
 	}
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassWord() {
+		return passWord;
+	}
+
+	public void setPassWord(String passWord) {
+		this.passWord = passWord;
 	}
 }
